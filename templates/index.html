@@ -1,15 +1,45 @@
 {% extends 'base.html' %}
 {% block content_title %}
 {% endblock %}
-
 {% block content %}
 
-<div class="card">
-  <div class="card-content">
-    <div class="content">
-      Tu będą informację o apce
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {% load static %}
+    <div class="container ">
+        <div class="container ">
+            <div class="columns">
+                <div class="column is-two-fifths has-background-grey-light">
+                    <form class="box has-background-primary">
+                        <div class="column">
+                            <div class="columns">
+                                <div class="column">
+                                    <div class="container ">
+                                        <div class="table has-background-grey-light">
+                                            <div class="content">
+                                                <p>Tu będą informacje o aplikacji.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                <div class="fieldWrapper{% if field.field.required %} required{% endif %}">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="column">
+                    <figure class="image is-3by2">
+                        <img src="{% static 'index.jpg' %}" alt="school">
+                    </figure>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
+</form>
 
 {% endblock %}

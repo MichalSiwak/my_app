@@ -15,39 +15,34 @@ import json
 from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
 
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
-# SECRET_KEY = 'django-insecure-_9rgc37z20bd9$+@4=%4j#72$1^ks(1m14a4n6+*k2spo_5qv4'
 
 with open(os.path.join(BASE_DIR, 'secrets.json')) as secrets_file:
     secrets = json.load(secrets_file)
 
 
-def get_secret(setting, secrets=secrets):
+def get_secret(setting, my_secrets=secrets):
     """Get secret setting or fail with ImproperlyConfigured"""
     try:
-        return secrets[setting]
+        return my_secrets[setting]
     except KeyError:
         raise ImproperlyConfigured("Set the {} setting".format(setting))
 
 
-
-
 # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = 'django-insecure-l!b8obon9^p3o@mz6x4dflkp)f75wmvg7%j4lm)v6xjdr#0dlb'
+
 
 SECRET_KEY = get_secret('SECRET_KEY')
-# SECRET_KEY = 'django-insecure-_9rgc37z20bd9$+@4=%4j#72$1^ks(1m14a4n6+*k2spo_5qv4'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -60,6 +55,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'userpanel',
     'verify_email.apps.VerifyEmailConfig',
+    # 'django_inlinecss',
 ]
 
 MIDDLEWARE = [
@@ -93,7 +89,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'mysite.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
@@ -105,7 +100,7 @@ DATABASES = {
 }
 
 #
-AUTH_USER_MODEL="userpanel.User"
+AUTH_USER_MODEL = "userpanel.User"
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -125,11 +120,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+
+LANGUAGE_CODE = 'pl'
 
 TIME_ZONE = 'UTC'
 
@@ -138,7 +133,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
@@ -158,6 +152,7 @@ EMAIL_PORT = 465
 EMAIL_USE_SSL = True
 EMAIL_HOST_USER = get_secret('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = get_secret('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = 'App name <noreply@example.com>'
 
 EXPIRE_AFTER = '1h'
 HTML_MESSAGE_TEMPLATE = 'email_template.html'
@@ -169,5 +164,5 @@ VERIFICATION_SUCCESS_MSG = 'Twój adres e-mail został pomyślnie zweryfikowany,
                            'Możesz teraz zalogować się przy użyciu danych logowania...'
 SUBJECT = 'Witaj w mojej aplikacji'
 LOGIN_URL = 'login'
-
+LOGIN_REDIRECT_URL = 'login/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

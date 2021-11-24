@@ -1,9 +1,8 @@
 from django import forms
-from django.forms.forms import NON_FIELD_ERRORS
-from django.utils.safestring import mark_safe
-
+from django.contrib.auth.forms import PasswordChangeForm, PasswordResetForm, SetPasswordForm, UserCreationForm
+from django.forms import ModelForm
+from django.utils.translation import gettext_lazy as _
 from .models import *
-from django.core.mail import send_mail
 
 
 class LoginForm(forms.Form):
@@ -22,43 +21,89 @@ class LoginForm(forms.Form):
 
 class EditProfileForm(forms.Form):
     username = forms.CharField(label='login')
-    # profile_picture = forms.ImageField(label='Zdjęcie profilowe', required=False)
     first_name = forms.CharField(label='Imię', required=False)
     last_name = forms.CharField(label='Nazwisko', required=False)
-    email = forms.EmailField(label='e-mail')
+    # email = forms.EmailField(label='e-mail')
 
 
-class RegisterUserForm(forms.ModelForm):
-    password = forms.CharField(label='Hasło', widget=forms.PasswordInput)
-    repeat_password = forms.CharField(label='Powtórz hasło', widget=forms.PasswordInput)
+class RegisterForm(UserCreationForm):
 
     class Meta:
+        fields = ["username", "password1", "password2", "email"]
         model = User
-        fields = ['username', 'email']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
         for myField in self.fields:
             self.fields[myField].widget.attrs['class'] = 'input'
+        self.fields['username'].label = 'Login'
+
+
+class EditPasswordForm(PasswordChangeForm):
+    def __init__(self, *args, **kwargs):
+        super(PasswordChangeForm, self).__init__(*args, **kwargs)
+        self.fields['new_password2'].label = _('Powtórz nowe hasło')
+
+
+class ResetPasswordForm(PasswordResetForm):
+    def __init__(self, *args, **kwargs):
+        super(ResetPasswordForm, self).__init__(*args, **kwargs)
+
+    email = forms.EmailField(label='Adres email', widget=forms.EmailInput(attrs={
+        'class': 'input',
+        'type': 'email',
+        'name': 'email'
+        }))
+
+
+class PasswordResetConfirmForm(SetPasswordForm):
+    def __init__(self, *args, **kwargs):
+        super(PasswordResetConfirmForm, self).__init__(*args, **kwargs)
+
+    new_password1 = forms.CharField(label='Nowe hasło', widget=forms.PasswordInput(attrs={
+        'class': 'input',
+        'type': 'password',
+        'name': 'new_password1',
+    }))
+
+    new_password2 = forms.CharField(label='Powtórz hasło', widget=forms.PasswordInput(attrs={
+        'class': 'input',
+        'type': 'password',
+        'name': 'new_password2'
+    }))
 
     def clean(self):
         cleaned_data = super().clean()
-
-        password = cleaned_data.get("password")
-        username = cleaned_data.get("username")
-        repeat_password = cleaned_data.get("repeat_password")
-
-        if password is not None and password != repeat_password:
-            self.add_error("repeat_password", "Hasła muszą być takie same.")
-
-        if User.objects.filter(username=username):
-            self.add_error('username', 'Login zajęty. Wybierz inny.')
-
+        print(self.error_messages)
         return cleaned_data
 
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        user.set_password(self.cleaned_data["password"])
-        if commit:
-            user.save()
-        return user
+
+class ChangeEmailForm(ModelForm):
+
+    class Meta:
+        fields = ["password", "email"]
+        model = User
+
+    password = forms.CharField(label='Podaj hasło', widget=forms.PasswordInput(attrs={
+        'class': 'input',
+        'type': 'password',
+        'name': 'new_password',
+    }))
+
+    email = forms.EmailField(label='Podaj nowy adres e-mail', widget=forms.EmailInput(attrs={
+        'class': 'input',
+        'type': 'email',
+        'name': 'email'
+        }))
+
+    # password = forms.CharField(label='Hasło', widget=forms.PasswordInput)
+    # email = forms.EmailField(label='e-mail')
+
+    # def clean(self):
+    #     cleaned_data = super().clean()
+    #     return cleaned_data
+
+
+    #     # 1234QWERasdf
+    #   qpwoZMXN1

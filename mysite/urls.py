@@ -18,9 +18,18 @@ from django.urls import path, include
 from userpanel.views import *
 from django.conf.urls.static import static
 from django.conf import settings
+from userpanel.forms import ResetPasswordForm
+from django.contrib.auth import views as auth_views
 
 
 urlpatterns = [
+    path('accounts/', include('django.contrib.auth.urls')),
+    path('reset_password/', auth_views.PasswordResetView.as_view(
+                            template_name='registration/password_reset_form.html',
+                            form_class=ResetPasswordForm), name='reset_password'),
+    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(
+                            template_name='registration/password_reset_confirm.html',
+                            form_class=PasswordResetConfirmForm), name='password_reset_confirm'),
     path('admin/', admin.site.urls),
     path('test/', TestView.as_view(), name='test'),
     path('', IndexView.as_view(), name='home'),
@@ -28,10 +37,11 @@ urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('user/', UserView.as_view(), name='user'),
-    # path('add_kid', AddNewKidView.as_view(), name='new_kid'),
-    path('edit_profile', EditProfileView.as_view(), name='edit_profile'),
+    path('edit_profile/', EditProfileView.as_view(), name='edit_profile'),
+    path('edit_profile/edit_password/', EditPasswordView.as_view(), name='edit_password'),
     path('verification/', include('verify_email.urls')),
+    path('edit_profile/change_mail/', MailChangeView.as_view(), name='change_mail')
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-# path(f'user/verify-email/<useremail>/<usertoken>/', verify_user_and_activate, name='verify-email'),
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

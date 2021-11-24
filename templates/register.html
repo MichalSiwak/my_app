@@ -1,132 +1,81 @@
 {% extends 'base.html' %}
 {% block content_title %}
 {% endblock %}
-
-
 {% block content %}
-<form method="post">
+
+<form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    {% load static %}
-<!--    {% if messages %}-->
+        {% load static %}
 
-<!--    <div class="container">-->
-<!--        <div class="d-flex justify-content-left">-->
-<!--            <div class="alert alert-danger" role="alert">-->
-<!--                {% for message in messages %}-->
-<!--                    <span class="{{ message.tags }}">{{ message }}</span>-->
-<!--                {% endfor %}-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </div>-->
-<!--    {% endif %}-->
+
+
     <div class="container ">
-
-        <div class="columns">
-
-            <div class="column is-one-third has-background-grey-light">
-                <form class="box has-background-primary">
-<!--                {% for field in form %}-->
-<!--                    <div class="field">-->
-<!--                        <label class="label">{{ field.label }}</label>-->
-<!--                        <div class="control">-->
-<!--                            <div class="fieldWrapper{% if field.field.required %} required{% endif %}">-->
-<!--                            {{ field }}-->
-<!--                            </div>-->
-<!--                        {% endfor %}-->
-<!--                    </div>-->
-
-
-<!--                    -->
-
-                    <div class="field">
-                        <label class="label">{{ form.username.label }}</label>
-                        <div class="control">
-                            <div class="fieldWrapper{% if field.field.required %} required{% endif %}">
-                            {{ form.username }}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="field">
-                        <label class="label">{{ form.password.label }}</label>
-                        <div class="control">
-                            <div class="fieldWrapper{% if field.field.required %} required{% endif %}">
-                            {{ form.password }}
-                            </div>
-                        </div>
-                    </div>
-
-                     <div class="field">
-                        <label class="label">{{ form.repeat_password.label }}</label>
-                        <div class="control">
-                            <div class="fieldWrapper{% if field.field.required %} required{% endif %}">
-                            {{ form.repeat_password }}
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <div class="field">
-                        <label class="label">{{ form.email.label }}</label>
-                        <div class="control">
-                            <div class="fieldWrapper{% if field.field.required %} required{% endif %}">
-                            {{ form.email }}
-                            </div>
-                        </div>
-                    </div>
-
-<!--                    -->
-
-                    <button class="button" value="register">Zarejestruj</button>
-                </form>
+        <div class="container ">
+            <div class="columns">
+                <div class="column is-two-fifths has-background-grey-light">
+                    <form class="box has-background-primary">
+                        <div class="column">
+                            <div class="columns">
+                                <div class="column">
+                                    <div class="container ">
+                                        <div class="table has-background-grey-light">
+                                            <div class="content">
+                                                <form class="box has-background-primary">
+                                                    <table>
+                                                        {% for field in form %}
+                                                            <tr>
+                                                                <td class="content">
+                                                                    {{ field.label_tag }}
+                                                                </td>
+                                                                <td>
+                                                                    {{ field }}
+                                                                </td>
+                                                            </tr>
+                                                            {% endfor %}
+                                                    </table>
+                                                    <button class="button is-black is-small" value="register">Zarejestruj</button>
 
 
 
-                {% if messages %}
-                    <div class="container">
-                        <article class="message">
-                            {% for message in messages %}
-                                <div class="message-body">
-                                    {{ message }}
-                                </div>
-                            {% endfor %}
-                        </article>
-                    </div>
-                {% endif %}
-
-
-
-
-
-
-            </div>
-                 <div class="column">
-                    <figure class="image is-3by2">
-                <img src="{% static 'index.jpg' %}" alt="school">
-            </figure>
-                </div>
-        </div>
-        <!--    <div class="container ">-->
-<!--        <div class="column">-->
-<!--            <figure class="image is-128x128">-->
-<!--                <img src="{% static 'index.jpg' %}" alt="school">-->
-<!--            </figure>-->
-<!--        </div>-->
-<!--    </div>-->
-
-    </div>
-
-
-<!--    <div class="container ">-->
-<!--        <div class="column">-->
-<!--            <figure class="image is-128x128">-->
-<!--                <img src="{% static 'index.jpg' %}" alt="school">-->
-<!--            </figure>-->
-<!--        </div>-->
-<!--    </div>-->
-
-
+                                            {% if messages %}
+                                            <div class="container">
+                                                <article class="message">
+                                                    {% for error in form.error_messages %}
+                                                        <div class="message-body">
+                                                            {% for key, value in form.error_messages.items %}
+                                                                <span class="fieldWrapper">
+                                                                    {{ value }}
+                                                                </span>
+                                                            {% endfor %}
+                                                        </div>
+                                                    {% endfor %}
+                                                </article>
+                                            </div>
+                                            {% endif %}
 </form>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                <div class="fieldWrapper{% if field.field.required %} required{% endif %}">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="column">
+                    <figure class="image is-3by2">
+                        <img src="{% static 'index.jpg' %}" alt="school">
+                    </figure>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
 {% endblock %}
-
-
