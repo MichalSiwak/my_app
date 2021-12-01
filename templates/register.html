@@ -36,23 +36,19 @@
                                                     <button class="button is-black is-small" value="register">Zarejestruj</button>
 
 
-
-                                            {% if messages %}
-                                            <div class="container">
-                                                <article class="message">
-                                                    {% for error in form.error_messages %}
+                                                {% if messages %}
+                                                <div class="container">
+                                                    <article class="message">
+                                                        {% for message in messages %}
                                                         <div class="message-body">
-                                                            {% for key, value in form.error_messages.items %}
-                                                                <span class="fieldWrapper">
-                                                                    {{ value }}
-                                                                </span>
-                                                            {% endfor %}
+                                                            {{ message }}
                                                         </div>
-                                                    {% endfor %}
-                                                </article>
-                                            </div>
-                                            {% endif %}
-</form>
+                                                        {% endfor %}
+                                                    </article>
+                                                </div>
+                                                {% endif %}
+
+                                                </form>
 
                                             </div>
                                         </div>

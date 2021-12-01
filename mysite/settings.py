@@ -154,15 +154,20 @@ EMAIL_HOST_USER = get_secret('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = get_secret('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = 'App name <noreply@example.com>'
 
+
+# email verification
 EXPIRE_AFTER = '1h'
+SUBJECT = 'Witaj w mojej aplikacji'
 HTML_MESSAGE_TEMPLATE = 'email_template.html'
-# VERIFICATION_SUCCESS_TEMPLATE = "success.html"
 VERIFICATION_SUCCESS_TEMPLATE = None
 VERIFICATION_FAILED_TEMPLATE = "failed.html"
-LINK_EXPIRED_TEMPLATE = "link_expired.html"
+LINK_EXPIRED_TEMPLATE = "link_expired_template.html"
 VERIFICATION_SUCCESS_MSG = 'Twój adres e-mail został pomyślnie zweryfikowany, a konto zostało aktywowane. ' \
                            'Możesz teraz zalogować się przy użyciu danych logowania...'
-SUBJECT = 'Witaj w mojej aplikacji'
+VERIFICATION_FAILED_MSG = 'Coś jest nie tak z tym linkiem, nie można zweryfikować użytkownika...'
+REQUEST_NEW_LINK = "link_expired_template.html"
+
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'login/'
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

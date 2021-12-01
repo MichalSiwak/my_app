@@ -1,8 +1,10 @@
-<h2>Witaj {{ inactive_user }}!</h2>
+{% autoescape off %}
 
-<div>
-    <a href="{{link}}" class="my-button" >Aktywuj konto</a>
-</div>
+Witaj {{ inactive_user }}!
 
-<p>Jeśli nie jesteś adresatem tego maila, zignoruj go.</p>
+Aby aktywować konto wejdź na poniższu link:
 
+<p><a href="{{link}}" class="my-button" >Aktywuj konto</a></p>
+
+
+{% endautoescape %}

@@ -14,13 +14,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
-from userpanel.views import *
-from django.conf.urls.static import static
-from django.conf import settings
-from userpanel.forms import ResetPasswordForm
 from django.contrib.auth import views as auth_views
-
+from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+from userpanel.views import *
+from userpanel.forms import ResetPasswordForm
 
 urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
@@ -40,7 +39,8 @@ urlpatterns = [
     path('edit_profile/', EditProfileView.as_view(), name='edit_profile'),
     path('edit_profile/edit_password/', EditPasswordView.as_view(), name='edit_password'),
     path('verification/', include('verify_email.urls')),
-    path('edit_profile/change_mail/', MailChangeView.as_view(), name='change_mail')
+    path('edit_profile/change_mail/', MailChangeView.as_view(), name='change_mail'),
+    path('change_mail/<uidb64>/<token>/', MailResetConfirmView.as_view(), name='change_mail_confirm'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

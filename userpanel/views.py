@@ -1,16 +1,20 @@
 from django.contrib.auth.hashers import check_password
-from django.contrib.messages import get_messages
-
-from userpanel.forms import *
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+from django.utils.encoding import force_text
+from django.utils.http import urlsafe_base64_decode
 from django.core.files.storage import FileSystemStorage
 from django.views import View
 from django.db import transaction
 from django.shortcuts import render, redirect
+from userpanel.forms import *
 from verify_email.email_handler import send_verification_email
+
+from .edit_errors import from_errors_to_list
+from .token import generate_token
+from .send_mail import send_mail_to_change_address
 
 
 class TestView(View):
@@ -49,24 +53,23 @@ class IndexView(View):
 class RegisterView(View):
     def get(self, request):
         form = RegisterForm()
-        register = True
-        return render(request, 'register.html', {'form': form, 'register': register})
+        return render(request, 'register.html', {'form': form})
 
     @transaction.atomic
     def post(self, request):
         form = RegisterForm(request.POST)
 
         if form.errors:
-            messages.error(request, form.errors)
-            # messages.error(request, next(iter(form.errors.values())))
-            return redirect('/register')
+            from_errors_to_list(form, request)
+
+            return render(request, 'register.html', {'form': form})
 
         if not form.is_valid():
-            return redirect('/register')
+            return render(request, 'register.html', {'form': form})
 
         form.save()
         send_verification_email(request, form)
-        messages.info(request, 'Rejestracja przebiegła prawidłowo. Sprawdź skrzynkę mailową. '
+        messages.success(request, 'Rejestracja przebiegła prawidłowo. Sprawdź skrzynkę mailową. '
                                'Otrzymałeś link aktywacyjny.')
         return redirect('login')
 
@@ -88,10 +91,10 @@ class LoginView(View):
                 return redirect('home')
 
             else:
-                messages.info(request, 'Błędny login lub hasło')
+                messages.error(request, 'Błędny login lub hasło')
                 return render(request, 'login.html', {'form': form})
         else:
-            messages.info(request, 'Nastąpił błąd. Skontaktuj sie z nami!!!')
+            messages.error(request, 'Nastąpił błąd. Skontaktuj sie z nami!!!')
             return redirect('home')
 
 
@@ -116,6 +119,7 @@ class EditProfileView(LoginRequiredMixin, View):
     def get(self, request):
         user = request.user
         is_active = user.is_active
+
         form = EditProfileForm(initial={"username": user.username,
                                         "first_name": user.first_name,
                                         "last_name": user.last_name,
@@ -127,7 +131,6 @@ class EditProfileView(LoginRequiredMixin, View):
         username = request.POST.get('username')
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
-        email = request.POST.get('email')
         user = request.user
 
         if request.FILES:
@@ -140,21 +143,21 @@ class EditProfileView(LoginRequiredMixin, View):
             User.objects.filter(id=user.id).update(username=username,
                                                    profile_picture=profile_picture,
                                                    first_name=first_name,
-                                                   last_name=last_name, email=email)
+                                                   last_name=last_name)
 
         elif User.objects.filter(username=username) and username != user.username:
             form = EditProfileForm(initial={"username": user.username,
                                             "first_name": user.first_name,
                                             "last_name": user.last_name,
-                                            "email": user.email})
+                                            })
             is_active = user.is_active
-            messages.info(request, 'Login zajęty. Wybierz inny.')
+            messages.error(request, 'Login zajęty. Wybierz inny.')
             return render(request, 'edit_profile.html', {'is_active': is_active, 'form': form})
 
         else:
             User.objects.filter(id=user.id).update(username=username,
                                                    first_name=first_name,
-                                                   last_name=last_name, email=email)
+                                                   last_name=last_name)
         return redirect('edit_profile')
 
 
@@ -176,7 +179,7 @@ class EditPasswordView(LoginRequiredMixin, View):
             return redirect('edit_password')
 
         else:
-            messages.info(request, form.error_messages.values())
+            from_errors_to_list(form, request)
             return redirect('edit_password')
 
 
@@ -188,16 +191,35 @@ class MailChangeView(LoginRequiredMixin, View):
         return render(request, 'change_mail.html', {'form': form, 'is_active': is_active})
 
     def post(self, request):
-        form = ChangeEmailForm(request.user, request.POST)
         password = request.POST['password']
-        email = request.POST['email']
+        new_email = request.POST['email']
         user = request.user
 
-        print(check_password(password, user.password))
-        # if password != user.set_unusable_password():
+        if User.objects.filter(email=new_email).exists() is True:
+            messages.error(request, 'Konto z tym emailem już istnieje')
 
-        #     messages.info(request, 'Na nowy adres mailowy otrzymałeś wiadomość z linkiem aktywującym nowy adfres e-mail.')
-        #     return redirect('change_mail')
+        elif check_password(password, user.password) is True:
+            User.objects.filter(pk=user.id).update(new_email=new_email)
+            send_mail_to_change_address(user, request)
+            messages.success(request, 'Na nowy adres mailowy wysłąliśmy wiadomość z linkiem aktywującym nowy adres.\n'
+                                    'Jeśli nie możesz znaleść wiadomości spawdź folder ze spamem, lub spróbuj jeszczese'
+                                    ' raz zmienić adres ')
 
-
+        else:
+            messages.error(request, "Błędne hasło")
         return redirect('change_mail')
+
+
+class MailResetConfirmView(View):
+    def get(self, request, uidb64, token):
+        uid = force_text(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+
+        if user and generate_token.check_token(user, token):
+            email = user.new_email
+            User.objects.filter(pk=user.id).update(email=email, new_email=None)
+            return redirect('user')
+
+        messages.error(request, 'Ten link już wygasł. Spróbuj jeszczese raz zmienić adres e-mail')
+        return redirect('change_mail')
+

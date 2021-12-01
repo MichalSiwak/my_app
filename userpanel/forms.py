@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import PasswordChangeForm, PasswordResetForm, SetPasswordForm, UserCreationForm
+from django.core.exceptions import ValidationError
 from django.forms import ModelForm
 from django.utils.translation import gettext_lazy as _
 from .models import *
@@ -38,6 +39,14 @@ class RegisterForm(UserCreationForm):
         for myField in self.fields:
             self.fields[myField].widget.attrs['class'] = 'input'
         self.fields['username'].label = 'Login'
+
+    def clean(self):
+        self.cleaned_data = super().clean()
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exists():
+            self.add_error('email', 'Istnieje już konto z tym adresem email.')
+        return self.cleaned_data
+
 
 
 class EditPasswordForm(PasswordChangeForm):

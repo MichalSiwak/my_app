@@ -11,11 +11,12 @@ class MyUserChangeForm(UserChangeForm):
     class Meta(UserChangeForm.Meta):
         model = User
 
+
 class MyUserAdmin(UserAdmin):
     form = MyUserChangeForm
 
     fieldsets = UserAdmin.fieldsets + (
-            (None, {'fields': ('profile_picture', 'is_email_verified')}),
+            (None, {'fields': ('profile_picture', 'new_email')}),
     )
 
 
