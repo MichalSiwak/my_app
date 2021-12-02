@@ -11,8 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
 from pathlib import Path
-import json
-from django.core.exceptions import ImproperlyConfigured
+import dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 
@@ -22,22 +21,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 
-with open(os.path.join(BASE_DIR, 'secrets.json')) as secrets_file:
-    secrets = json.load(secrets_file)
+dotenv_file = os.path.join(BASE_DIR, ".env")
+if os.path.isfile(dotenv_file):
+    dotenv.load_dotenv(dotenv_file)
 
+# UPDATE secret key
+SECRET_KEY = os.environ['SECRET_KEY']
 
-def get_secret(setting, my_secrets=secrets):
-    """Get secret setting or fail with ImproperlyConfigured"""
-    try:
-        return my_secrets[setting]
-    except KeyError:
-        raise ImproperlyConfigured("Set the {} setting".format(setting))
-
-
-# SECURITY WARNING: keep the secret key used in production secret!
-
-
-SECRET_KEY = get_secret('SECRET_KEY')
+# SECRET_KEY = get_secret('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -150,8 +141,9 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 465
 EMAIL_USE_SSL = True
-EMAIL_HOST_USER = get_secret('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = get_secret('EMAIL_HOST_PASSWORD')
+
+EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
+EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
 DEFAULT_FROM_EMAIL = 'App name <noreply@example.com>'
 
 
